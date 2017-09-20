@@ -13,9 +13,7 @@ public class Try2 {
 		// Make an ArrayList of ArrayLists,
 		// each inner ArrayList contains permeations of numbers.
 		Stack<Stack<Integer>> numberPermeations = permute(inputList, 0);
-
-		System.out.println(numberPermeations.size());
-		System.out.print(evaluate("1 + 3 + 4 + 5"));
+		Stack<char[]> operatorCombinations = generatorOperatorStack();
 	}
 
 	// Get 4 integers from user as array
@@ -69,4 +67,24 @@ public class Try2 {
 		return returnList;
 	}
 
+	// Method to generate a stack with all possible combination of operators
+	// I'm sure there's a more elegant way to accomplish this...
+	// I just don't know what it is.
+	static Stack<char[]> generatorOperatorStack() {
+		Stack<char[]> operatorStack = new Stack<>();
+		char[] operators = { '+', '-', '*', '/' };
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				for (int k = 0; k < 4; k++) {
+					for (int l = 0; l < 4; l++) {
+						char[] pushMe = { operators[i], operators[j], operators[k], operators[l] };
+						operatorStack.push(pushMe);
+						// System.out.println(operators[i] + " " + operators[j]
+						// + " " + operators[k] + " " + operators[l]);
+					}
+				}
+			}
+		}
+		return operatorStack;
+	}
 }
