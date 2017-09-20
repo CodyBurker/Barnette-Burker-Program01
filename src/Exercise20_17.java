@@ -1,196 +1,196 @@
-//Exercise20_17.java
-//David G Barnette & Cody Burker
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Scanner;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
-import java.util.*;
-public class Exercise20_17 {
+public class Try2 {
 
-	public static void main(String[] args) {
-	long startTimeM = System.currentTimeMillis();
-	Stack<Character> op1 = new Stack<>();
-	Stack<Character> op2 = new Stack<>();
-	Stack<Character> op3 = new Stack<>();
-	Stack<Integer> numbers = new Stack<>();
-	int result = 0;
+	public static void main(String[] args) throws NumberFormatException, ScriptException {
+		ArrayList<Integer> inputArrayList = getInput(); // Get user input
+		// Make an ArrayArrayList of ArrayArrayLists,
+		// each inner ArrayArrayList contains permeations of numbers.
+		ArrayList<ArrayList<Integer>> numberPermeations = new ArrayList<ArrayList<Integer>>();
+		permute(inputArrayList, 0, numberPermeations);
 
-	enterNumbers(numbers);
-	stackNumbers(numbers);
+		ArrayList<ArrayList<Character>> operatorCombinations = generatorOperatorArrayList();
+		ArrayList<String[]> parenthesesCombinations = buildParentheseArrayList();
+		// Build a ArrayList of strings with all combinations of expressions
+		ArrayList<String> expressions = new ArrayList<>();
+		for (ArrayList<Integer> number : numberPermeations) {
+			for (ArrayList<Character> operator : operatorCombinations) {
+				for (String[] parenthesis : parenthesesCombinations) {
+					// Using string builder to avoid concatenation overhead
+					// Pattern is as follows
+					// (_(_A_+_(_B_)_+_(_C_)_+_D_)_)
+					// 1_2_____3___4___5___6_____7_8
+					StringBuilder exp = new StringBuilder();
+					exp.append(parenthesis[0]);
+					exp.append(parenthesis[1]);
+					exp.append(number.get(0));
+					exp.append(operator.get(0));
+					exp.append(parenthesis[2]);
+					exp.append(number.get(1));
+					exp.append(parenthesis[3]);
+					exp.append(operator.get(1));
+					exp.append(parenthesis[4]);
+					exp.append(number.get(2));
+					exp.append(parenthesis[5]);
+					exp.append(operator.get(2));
+					exp.append(number.get(3));
+					exp.append(parenthesis[6]);
+					exp.append(parenthesis[7]);
 
-	while(!numbers.isEmpty()){
-	loadOperatorStacks(op1, op2, op3);	
-	result += combineStacks(op1, op2, op3, numbers);
-	}
-	if(result == 0){
-		System.out.println("No solutions were found.");
-	}
-	long endTimeM = System.currentTimeMillis();
-	System.out.println("The computations were completed in " + (endTimeM - startTimeM) + " milliseconds.");
-	}
-	public static void enterNumbers(Stack numbers){
-		Scanner input = new Scanner(System.in);
-			System.out.print("Enter 4 numbers (1-13): ");
-		for(int i = 0; i < 4; i++){
-		int num = input.nextInt();
-		if(num > 0 && num < 14){
-			numbers.push(num);
-		}
-		else{
-			System.out.println("The entry number " + num + " is out of range.");
-		}
-		}
-		if(numbers.size() < 4){
-			System.out.println("Please enter " + (4 - numbers.size()) + " more number(s) (1-13): " ); 
-		while(numbers.size() < 4){
-			int num = input.nextInt();
-			if(num > 0 && num < 14){
-				numbers.push(num);
-			}
-			else{
-				System.out.println("The entry number " + num + " is also out of range.  Please start over.  Good Bye.");
-			System.exit(1);
+					// expressions eventually has 24*256*9 = 43,008 entries.
+					// System.out.println(exp.toString());
+					expressions.add(exp.toString());
+				}
 			}
 		}
-		}
-		input.close();
-		}	
-	public static void stackNumbers(Stack<Integer> numbers){
-		
-	int A = numbers.pop();
-	int B = numbers.pop();
-	int C = numbers.pop();
-	int D = numbers.pop();
-	
-	numbers.push(A); numbers.push(B); numbers.push(C); numbers.push(D);
-	numbers.push(A); numbers.push(B); numbers.push(D); numbers.push(C);
-	numbers.push(A); numbers.push(C); numbers.push(B); numbers.push(D);
-	numbers.push(A); numbers.push(C); numbers.push(D); numbers.push(B);
-	numbers.push(A); numbers.push(D); numbers.push(B); numbers.push(C);
-	numbers.push(A); numbers.push(D); numbers.push(C); numbers.push(B);
-	numbers.push(B); numbers.push(A); numbers.push(C); numbers.push(D);
-	numbers.push(B); numbers.push(A); numbers.push(D); numbers.push(C);
-	numbers.push(B); numbers.push(C); numbers.push(A); numbers.push(D);
-	numbers.push(B); numbers.push(C); numbers.push(D); numbers.push(A);
-	numbers.push(B); numbers.push(D); numbers.push(A); numbers.push(C);
-	numbers.push(B); numbers.push(D); numbers.push(C); numbers.push(A);
-	numbers.push(C); numbers.push(A); numbers.push(B); numbers.push(D);
-	numbers.push(C); numbers.push(A); numbers.push(D); numbers.push(B);
-	numbers.push(C); numbers.push(B); numbers.push(A); numbers.push(D);
-	numbers.push(C); numbers.push(B); numbers.push(D); numbers.push(A);
-	numbers.push(C); numbers.push(D); numbers.push(A); numbers.push(B);
-	numbers.push(C); numbers.push(D); numbers.push(B); numbers.push(A);
-	numbers.push(D); numbers.push(A); numbers.push(B); numbers.push(C);
-	numbers.push(D); numbers.push(A); numbers.push(C); numbers.push(B);
-	numbers.push(D); numbers.push(B); numbers.push(A); numbers.push(C);
-	numbers.push(D); numbers.push(B); numbers.push(C); numbers.push(A);
-	numbers.push(D); numbers.push(C); numbers.push(A); numbers.push(B);
-	numbers.push(D); numbers.push(C); numbers.push(B); numbers.push(A);
-	}	
-	public static int loadOperatorStacks(Stack op1, Stack op2, Stack op3){
-	char sum = '+'; char dif = '-'; char prod = '*'; char quo = '/';
 
-	for(int i = 0; i < 4; i++){
-		for(int j = 0; j < 16; j ++){
-			if(i == 0)
-				op1.push(prod);
-			else if(i == 1)
-				op1.push(quo);
-			else if(i == 2)
-				op1.push(sum);
-			else if(i == 3)
-				op1.push(dif);
-		}
-	}
-	for(int i = 0; i < 4; i++){
-		for(int j = 0; j < 4; j++){
-			if(j == 0){
-				op2.push(prod);
-				op2.push(prod);
-				op2.push(prod);
-				op2.push(prod);
-			}
-			else if(j == 1){
-				op2.push(quo);
-				op2.push(quo);
-				op2.push(quo);
-				op2.push(quo);
-			}
-			else if(j == 2){
-				op2.push(sum);
-				op2.push(sum);
-				op2.push(sum);
-				op2.push(sum);
-			}
-			else if(j == 3){
-				op2.push(dif);
-				op2.push(dif);
-				op2.push(dif);
-				op2.push(dif);
-			}
-		}	
-	}
-		for(int i = 0; i < 16; i++){
-		op3.push(prod);
-		op3.push(quo);
-		op3.push(sum);
-		op3.push(dif);		
-	}
-	return 0;
-	}
-	public static int combineStacks(Stack<Character> op1, Stack<Character> op2, Stack<Character> op3, Stack<Integer> numbers){
-		int num1 = numbers.pop();
-		int num2 = numbers.pop();
-		int num3 = numbers.pop();
-		int num4 = numbers.pop();
-		int result = 0;
-		
-	while(!op3.isEmpty()){
-		int carry = 0;
-		char opar = '(';
-		char cpar = ')';
-		char o1 = op1.pop();
-		char o2 = op2.pop();
-		char o3 = op3.pop();
+		// Evaluate expressions
 
-		if(o1 == '*'){
-			carry = num1 * num2;
-			}	
-			else if(o1 == '/'){
-			carry = num1 / num2;
-			}	
-			else if(o1 == '+'){
-			carry = num1 + num2;
-			}	
-			else if(o1 == '-'){
-			carry = num1 - num2;
-			}	
-		if(o2 == '*'){
-			carry *= num3;
-			}	
-			else if(o2 == '/'){
-			carry /= num3;
-			}	
-			else if(o2 == '+'){
-			carry += num3;
-			}	
-			else if(o2 == '-'){
-			carry -= num3;
-			}	
-		if(o3 == '*'){
-			carry *= num4;
-			}	
-			else if(o3 == '/'){
-			carry /= num4;
-			}	
-			else if(o3 == '+'){
-			carry += num4;
-			}	
-			else if(o3 == '-'){
-			carry -= num4;
+		System.out.println("Evaluating.");
+		ArrayList<String> validExpressions = evaluate(expressions, 24);
+		System.out.println("Results:");
+		int i = 0;
+		for (String current : validExpressions) {
+			System.out.println(i + ": " + current);
+			i++;
+		}
+
+	}
+
+	// Get 4 integers from user as array
+	static ArrayList<Integer> getInput() {
+		System.out.println("Enter four integers");
+		Scanner inputScanner = new Scanner(System.in);
+		ArrayList<Integer> inputArrayList = new ArrayList<>();
+		inputArrayList.add(inputScanner.nextInt());
+		inputArrayList.add(inputScanner.nextInt());
+		inputArrayList.add(inputScanner.nextInt());
+		inputArrayList.add(inputScanner.nextInt());
+		inputScanner.close();
+		return inputArrayList;
+	}
+
+	// Method to evaluate ArrayList<String> to expression
+	static ArrayList<String> evaluate(ArrayList<String> expressions, int targetNumber)
+			throws NumberFormatException, ScriptException {
+		ScriptEngineManager manager = new ScriptEngineManager();
+		ScriptEngine javascriptEngine = manager.getEngineByName("javascript");
+		ArrayList<String> returnList = new ArrayList<>();
+		for (String expression : expressions) {
+			Object returnObject = javascriptEngine.eval(expression);
+			// If return value is an integer and
+			if (returnObject instanceof Integer) {
+				// if that integer is equal to 24 (the target value) and
+
+				if ((int) returnObject == targetNumber) {
+					// Then add it to the list.
+					if (!returnList.contains(expression)) {
+						returnList.add(expression);
+					}
+				}
+			} else if (returnObject instanceof Double) {
+				if ((Double) returnObject == (double) targetNumber) {
+
+					returnList.add(expression);
+				}
 			}
-		if(carry == 24){
-		System.out.println("(" + num1 + "" + o1 + "" + num2 + ")" + o2 + "" + num3 + "" + o3 + "" + num4 + " = " + carry);
-		result++;
+		}
+		return returnList;
+	}
+
+	// Method to permute through ArrayList
+	// Inspiration drawn from
+	// https://ArrayListoverflow.com/questions/2920315/permutation-of-array
+	static void permute(ArrayList<Integer> ArrayList, int bounds, ArrayList<ArrayList<Integer>> output) {
+
+		for (int i = bounds; i < ArrayList.size(); i++) {
+			Collections.swap(ArrayList, i, bounds);
+			// Call self recursively while adding all previous selves.
+			permute(ArrayList, bounds + 1, output);
+			Collections.swap(ArrayList, bounds, i);
+		}
+		if (bounds == ArrayList.size() - 1) {
+			// add current permeation to return ArrayList
+			ArrayList<Integer> tmpLst = new ArrayList<>();
+			tmpLst.add(ArrayList.get(0));
+			tmpLst.add(ArrayList.get(1));
+			tmpLst.add(ArrayList.get(2));
+			tmpLst.add(ArrayList.get(3));
+			output.add(tmpLst);
+			// Optionally print to console
+			// return returnArrayList if at bottom of barrel...
 		}
 	}
-	return result;	
+
+	// Method to generate a ArrayList with all possible combination of operators
+	// I'm sure there's a more elegant way to accomplish this...
+	// I just don't know what it is.
+	static ArrayList<ArrayList<Character>> generatorOperatorArrayList() {
+		ArrayList<ArrayList<Character>> operatorArrayList = new ArrayList<>();
+		char[] operators = { '+', '-', '*', '/' };
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				for (int k = 0; k < 4; k++) {
+					for (int l = 0; l < 4; l++) {
+						ArrayList<Character> tempArrayList = new ArrayList<>();
+						tempArrayList.add(operators[i]);
+						tempArrayList.add(operators[j]);
+						tempArrayList.add(operators[k]);
+						tempArrayList.add(operators[l]);
+						operatorArrayList.add(tempArrayList);
+						// System.out.println(tempArrayList.toString());
+					}
+				}
+			}
+		}
+		return operatorArrayList;
+	}
+
+	// Method to build a ArrayList of ArrayLists of strings that represent
+	// parentheses
+	public static ArrayList<String[]> buildParentheseArrayList() {
+		// Long, tedious, ugly code that could be better.
+
+		// PARENTHESE FORMAT IS AS FOLLOWS
+		// (_(_A_+_(_B_)_+_(_C_)_+_D_)_)
+		// 1_2_____3___4___5___6_____7_8
+		// Above is position in byte represented by parentheses
+
+		ArrayList<String[]> parenPossibilities = new ArrayList<>();
+		// A + B + C + D
+		String[] variable1 = { "", "", "", "", "", "", "", "" };
+		// (A + B)+ C + D
+		String[] variable2 = { "(", "", "", ")", "", "", "", "" };
+		// (A + B + C) + D
+		String[] variable3 = { "(", "", "", "", "", ")", "", "" };
+		// A + (B + C) + D
+		String[] variable4 = { "", "", "(", "", "", ")", "", "" };
+		// A + (B+ C + D)
+		String[] variable5 = { "", "", "(", "", "", "", ")", "" };
+		// A + B+ (C + D)
+		String[] variable6 = { "", "", "", "", "(", "", ")", "" };
+		// (A + B) + (C + D)
+		String[] variable7 = { "(", "", "", ")", "(", "", "", ")" };
+		// ((A+B)+C) + D
+		String[] variable8 = { "(", "(", "", ")", "", ")", "", "" };
+		// A+(B+(C+D))
+		String[] variable9 = { "", "", "(", "", "(", "", ")", ")" };
+
+		parenPossibilities.add(variable1);
+		parenPossibilities.add(variable2);
+		parenPossibilities.add(variable3);
+		parenPossibilities.add(variable4);
+		parenPossibilities.add(variable5);
+		parenPossibilities.add(variable6);
+		parenPossibilities.add(variable7);
+		parenPossibilities.add(variable8);
+		parenPossibilities.add(variable9);
+
+		return parenPossibilities;
 	}
 }
