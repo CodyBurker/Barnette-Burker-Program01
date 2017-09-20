@@ -23,24 +23,27 @@ public class Try2 {
 				for (String[] parenthesis : parenthesesCombinations) {
 					// Using string builder to avoid concatenation overhead
 					// Pattern is as follows
-					// (1+(2)+(3)+4)
+					// (_(_A_+_(_B_)_+_(_C_)_+_D_)_)
+					// 1_2_____3___4___5___6_____7_8
 					StringBuilder exp = new StringBuilder();
-
 					exp.append(parenthesis[0]);
+					exp.append(parenthesis[1]);
 					exp.append(number.get(0));
 					exp.append(operator.get(0));
-					exp.append(parenthesis[1]);
-					exp.append(number.get(1));
 					exp.append(parenthesis[2]);
-					exp.append(operator.get(1));
+					exp.append(number.get(1));
 					exp.append(parenthesis[3]);
-					exp.append(number.get(2));
+					exp.append(operator.get(1));
 					exp.append(parenthesis[4]);
+					exp.append(number.get(2));
+					exp.append(parenthesis[5]);
 					exp.append(operator.get(2));
 					exp.append(number.get(3));
-					exp.append(parenthesis[5]);
+					exp.append(parenthesis[6]);
+					exp.append(parenthesis[7]);
 
-					// expressions eventually has 24*256*7 = 43,008 entries.
+					// expressions eventually has 24*256*9 = 43,008 entries.
+					// System.out.println(exp.toString());
 					expressions.add(exp.toString());
 				}
 			}
@@ -154,26 +157,29 @@ public class Try2 {
 		// Long, tedious, ugly code that could be better.
 
 		// PARENTHESE FORMAT IS AS FOLLOWS
-		// (_A_+_(_B_)_+_(_C_)_+_D_)
-		// 1_____2___3___4___5_____6
-		// 0b00123456
+		// (_(_A_+_(_B_)_+_(_C_)_+_D_)_)
+		// 1_2_____3___4___5___6_____7_8
 		// Above is position in byte represented by parentheses
 
 		ArrayList<String[]> parenPossibilities = new ArrayList<>();
 		// A + B + C + D
-		String[] variable1 = { "", "", "", "", "", "" };
+		String[] variable1 = { "", "", "", "", "", "", "", "" };
 		// (A + B)+ C + D
-		String[] variable2 = { "(", "", ")", "", "", "" };
+		String[] variable2 = { "(", "", "", ")", "", "", "", "" };
 		// (A + B + C) + D
-		String[] variable3 = { "(", "", "", "", ")", "" };
+		String[] variable3 = { "(", "", "", "", "", ")", "", "" };
 		// A + (B + C) + D
-		String[] variable4 = { "", "(", "", "", ")", "" };
+		String[] variable4 = { "", "", "(", "", "", ")", "", "" };
 		// A + (B+ C + D)
-		String[] variable5 = { "", "(", "", "", "", ")" };
+		String[] variable5 = { "", "", "(", "", "", "", ")", "" };
 		// A + B+ (C + D)
-		String[] variable6 = { "", "", "", "(", "", ")" };
+		String[] variable6 = { "", "", "", "", "(", "", ")", "" };
 		// (A + B) + (C + D)
-		String[] variable7 = { "(", "", ")", "(", "", ")" };
+		String[] variable7 = { "(", "", "", ")", "(", "", "", ")" };
+		// ((A+B)+C) + D
+		String[] variable8 = { "(", "(", "", ")", "", ")", "", "" };
+		// A+(B+(C+D))
+		String[] variable9 = { "", "", "(", "", "(", "", ")", ")" };
 
 		parenPossibilities.add(variable1);
 		parenPossibilities.add(variable2);
@@ -182,6 +188,8 @@ public class Try2 {
 		parenPossibilities.add(variable5);
 		parenPossibilities.add(variable6);
 		parenPossibilities.add(variable7);
+		parenPossibilities.add(variable8);
+		parenPossibilities.add(variable9);
 
 		return parenPossibilities;
 	}
