@@ -1,19 +1,23 @@
 import java.util.Collections;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-public class Try2 {
+// Expression.java found on https://github.com/opalkale/expression-evaluator/blob/master/Expression.java
+// The above file was open-source and is used in compliance with the author's wishes
+public class Exercise20_17 {
 
 	public static void main(String[] args) throws NumberFormatException, ScriptException {
 		ArrayList<Integer> inputArrayList = getInput(); // Get user input
 		// Make an ArrayArrayList of ArrayArrayLists,
 		// each inner ArrayArrayList contains permeations of numbers.
+		Timer timer = new Timer();
+		timer.start();
 		ArrayList<ArrayList<Integer>> numberPermeations = new ArrayList<ArrayList<Integer>>();
 		permute(inputArrayList, 0, numberPermeations);
-
 		ArrayList<ArrayList<Character>> operatorCombinations = generatorOperatorArrayList();
 		ArrayList<String[]> parenthesesCombinations = buildParentheseArrayList();
 		// Build a ArrayList of strings with all combinations of expressions
@@ -49,17 +53,25 @@ public class Try2 {
 			}
 		}
 
+		System.out.println("All " + expressions.size()
+				+ " possible arrangements of numbers, operators, and parentheses generated in "
+				+ (double) timer.stop() / 1000 + " seconds.");
+		System.out.println("Beginning evaluation of these expressions.");
+		timer.start();
 		// Evaluate expressions
-
-		System.out.println("Evaluating.");
-		ArrayList<String> validExpressions = evaluate(expressions, 24);
+		ArrayList<String> validExpressions = evaluateExpression(expressions, 24);
 		System.out.println("Results:");
 		int i = 0;
 		for (String current : validExpressions) {
 			System.out.println(i + ": " + current);
 			i++;
 		}
-
+		if (!validExpressions.isEmpty()) {
+			System.out.println("All " + i + " solutions to puzzle found in " + timer.stop() / 1000. + " seconds.");
+		} else {
+			System.out.println("No solutions found. It took " + timer.stop() / 1000.
+					+ " seconds of my precious time to figure this out for you.");
+		}
 	}
 
 	// Get 4 integers from user as array
@@ -75,7 +87,29 @@ public class Try2 {
 		return inputArrayList;
 	}
 
+	static ArrayList<String> evaluateExpression(ArrayList<String> expressions, int targetNumber) {
+		ArrayList<String> returnArray = new ArrayList<>();
+
+		for (String expression : expressions) {
+			Expression evaluateMe = new Expression(expression);
+			BigDecimal result = new BigDecimal("0");
+			try {
+				result = evaluateMe.eval();
+			} catch (Exception e) {
+			}
+			;
+			if (result.compareTo(new BigDecimal(targetNumber + "")) == 0) {
+				if (!returnArray.contains(expression)) {
+					returnArray.add(expression);
+				}
+			}
+		}
+		return returnArray;
+	}
+
 	// Method to evaluate ArrayList<String> to expression
+	// Was slow so this was replaced with the "Expression.java class" in the src
+	// folder
 	static ArrayList<String> evaluate(ArrayList<String> expressions, int targetNumber)
 			throws NumberFormatException, ScriptException {
 		ScriptEngineManager manager = new ScriptEngineManager();
@@ -192,5 +226,23 @@ public class Try2 {
 		parenPossibilities.add(variable9);
 
 		return parenPossibilities;
+	}
+}
+
+class Timer {
+	long startMillis;
+	long stopMillis;
+
+	Timer() {
+
+	}
+
+	void start() {
+		startMillis = System.currentTimeMillis();
+	}
+
+	long stop() {
+		stopMillis = System.currentTimeMillis();
+		return stopMillis - startMillis;
 	}
 }
